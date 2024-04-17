@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jp.ac.ohara.score.models.StudentModel;
 import jp.ac.ohara.score.service.StudentService;
 
@@ -21,6 +23,10 @@ public class MainController {
 	
 	@Autowired
 	private StudentService studentservice;
+	
+	@PersistenceContext
+	EntityManager entityManager;
+
 	
 	@GetMapping("/")
 	  public String index(Model model) {
@@ -49,8 +55,18 @@ public class MainController {
 	  public String show(Model model ,StudentModel studentmodel) {
 			this.studentservice.getStudentList();
 			model.addAttribute("studentlist",studentservice.getStudentList());
+			model.addAttribute("msg","検索条件を入力してください");
 			return "index";
 		}
+	
+	@PostMapping("/index")
+	public String select(@ModelAttribute("StudentModel") StudentModel studentmodel,Model model) {
+		model.addAttribute("msg2","検索結果");
+		model.addAttribute("students",this.studentservice.search(studentmodel.getStudentNo(),studentmodel.getEntYear()
+				,studentmodel.getClassNum(),studentmodel.getIsAttend()));
+		
+		return "index";
+	}
 	
 	@GetMapping("/createSuccess")
 	  public ModelAndView viewCreateSuccess(ModelAndView model) {

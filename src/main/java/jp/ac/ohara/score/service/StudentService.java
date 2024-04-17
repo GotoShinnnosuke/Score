@@ -1,20 +1,30 @@
 package jp.ac.ohara.score.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import jp.ac.ohara.score.models.StudentModel;
+import jp.ac.ohara.score.repositories.StudentDataDaoImpl;
 import jp.ac.ohara.score.repositories.StudentRepository;
 
 
 @Service
 @Transactional
 public class StudentService {
-	@Autowired
-	private StudentRepository repository;
+	
+	private final StudentRepository repository;
+	
+	private final StudentDataDaoImpl studentdatadaoimpl;
+	
+
+	
+    public StudentService(StudentRepository repository, StudentDataDaoImpl studentdatadaoimpl) {
+        this.repository = repository;
+        this.studentdatadaoimpl = studentdatadaoimpl;
+    }
 	
 	public List<StudentModel> getStudentList() {
 		List<StudentModel> entityList = this.repository.findAll();
@@ -46,6 +56,23 @@ public class StudentService {
 //	    .where(StudentRepository.userNameContains(isAttend)));
 //	    // 複数項目の場合は.and(),.or()でつなげる
 //	}
+	
+	//検索
+    public List<StudentModel> search(String studentNo, 
+			Integer entYear,String classNum,Boolean isAttend){
+
+        List<StudentModel> result = new ArrayList<StudentModel>();
+
+        //すべてブランクだった場合は全件検索する
+        if ("".equals(studentNo) && "".equals(entYear) && "".equals(classNum) && "".equals(isAttend)){
+            result = this.repository.findAll();
+        }
+        else {
+            //上記以外の場合、BookDataDaoImplのメソッドを呼び出す
+            result = this.studentdatadaoimpl.search(studentNo, entYear,classNum,isAttend);
+        }
+        return result;
+    }
 	
 
 }

@@ -5,7 +5,67 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h2>学生管理</h2>
+		<h1>学生管理</h1>
+		<h2 th:text="${msg}"></h2>
+        <p th:text="${msg2}"></p>
+        <!--入力した値をth:object="${formModel}"に詰める  -->
+        <!--th:valueで初期値が入るようにする  -->
+        <form method="post" th:action="@{/index}" th:object="${studentlist}">
+            <label>学生番号:</label>
+            <input type="text" name="studentNo"><p>
+<!--            <label>入学年度:</label>-->
+<!--            <select id="entYear" name="entYear">-->
+<!--            	<option value="" disabled selected>入学年度を選択してください</option>-->
+<!--            		<option value="2014">2014年</option>-->
+<!--	                <option value="2015">2015年</option>-->
+<!--	                <option value="2016">2016年</option>-->
+<!--	                <option value="2017">2017年</option>-->
+<!--	                <option value="2018">2018年</option>-->
+<!--	                <option value="2019">2019年</option>-->
+<!--	                <option value="2020">2020年</option>-->
+<!--	                <option value="2021">2021年</option>-->
+<!--	                <option value="2022">2022年</option>-->
+<!--	                <option value="2023">2023年</option>-->
+<!--	                <option value="2024">2024年</option>-->
+<!--	                <option value="2025">2025年</option>-->
+<!--	                <option value="2026">2026年</option>-->
+<!--	                <option value="2027">2027年</option>-->
+<!--	                <option value="2028">2028年</option>-->
+<!--	                <option value="2029">2029年</option>-->
+<!--	                <option value="2030">2030年</option>-->
+<!--	                <option value="2031">2031年</option>-->
+<!--	                <option value="2032">2032年</option>-->
+<!--	                <option value="2033">2033年</option>-->
+<!--	                <option value="2034">2034年</option>-->
+<!--            </select>-->
+<!--            <label>クラス番号:</label>-->
+<!--	            <select id="classNum" name="classNum">-->
+<!--	             	<option value="01A">01A</option>-->
+<!--	                <option value="01B">01B</option>-->
+<!--	                <option value="01C">01C</option>-->
+<!--	                <option value="01D">01D</option>-->
+<!--	            </select>-->
+            <input type="submit" value="検索">
+        </form>
+        
+        <table>
+            <tr>
+                <th>ISBN</th>
+                <th>タイトル</th>
+                <th>著者名</th>
+                <th>在庫数</th>
+                <th>ジャンル</th>
+            </tr>
+            <tr th:each="obj:${students}" th:object="${obj}">
+                <!--th:hrefでリンク設定  -->
+<!--                <td><a th:href="@{/book/detail/{isbn}(isbn=*{isbn})}" th:text="*{isbn}"></a></td>-->
+<!--                <td th:text="*{title}"></td>-->
+<!--                <td th:text="*{author}"></td>-->
+<!--                <td th:text="*{stock}"></td>-->
+                <td th:text="*{studentNo}"></td>
+            </tr>
+        </table>
+	
 	<table border="1">
 		<thead>
 			<tr>
