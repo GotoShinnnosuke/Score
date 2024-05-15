@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+	<div id="replace" th:replace="base::title"></div>
+</head>
+<body>
+	<div id="replace" th:replace="base::header"></div>
+	
+	<table border="1">
+		<thead>
+			<tr>
+				<th>科目コード</th>
+				<th>科目名</th>
+				<th>編集</th>
+				<th>削除</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="item : ${Subjectlist}">
+				<th:block th:if="${item.isDelete == true}">
+					<td th:text="${item.subjectCd}"></td>
+					<td th:text="${item.subjectName}"></td>
+					<td><a th:href="@{'/subjectUpdate/'+${item.id}}">編集</a></td>
+					<td><a th:href="@{'/subjectDelete/'+${item.id}}">削除</a></td>
+				</th:block>
+			</tr>
+		</tbody>
+	</table>	
+	
+	<a href="/CreateSubject">科目登録へ</a>
+	
+	<div id="replace" th:replace="base::footer"></div>
+</body>
+</html>

@@ -10,13 +10,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @Entity
-@Table(name="Student")
+@Table(name="test")
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentModel {
+public class TestModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column
@@ -25,20 +24,19 @@ public class StudentModel {
 	@Column(name="student_no",length=10,nullable=false)
 	private String studentNo;
 	
-	@Column(name="name",length=10,nullable=true)
-	private String name;
+	@Column(name="subject_cd",length=3,nullable=false)
+	private String subjectCd;
 	
-	@Column(name="ent_year",length=10,nullable=true)
-	private Integer entYear;
-	
-	@Column(name="class_num",length=3,nullable=true)
-	private String classNum;
-	
-	@Column(name="is_attend",nullable=true)
-	private Boolean isAttend;
-	
-	@Column(name="school_cd",length=3,nullable=true)
+	@Column(name="school_cd",length=10,nullable=false)
 	private String schoolCd;
 	
-			
+	@Column(name="count",length=10,nullable=false)
+	private Integer count;
+	
+	@Column(name="score",length=10,nullable=true)
+	private Integer score;
+	
+	@Column(name="class_num",length=5,nullable=true)
+	private String classNum;
+	
 }

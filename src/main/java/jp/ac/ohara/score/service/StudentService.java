@@ -3,11 +3,12 @@ package jp.ac.ohara.score.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import jp.ac.ohara.score.models.StudentModel;
-import jp.ac.ohara.score.repositories.StudentDataDaoImpl;
 import jp.ac.ohara.score.repositories.StudentRepository;
 
 
@@ -15,19 +16,12 @@ import jp.ac.ohara.score.repositories.StudentRepository;
 @Transactional
 public class StudentService {
 	
-	private final StudentRepository repository;
-	
-	private final StudentDataDaoImpl studentdatadaoimpl;
-	
+	@Autowired
+	private StudentRepository repository;
 
 	
-    public StudentService(StudentRepository repository, StudentDataDaoImpl studentdatadaoimpl) {
-        this.repository = repository;
-        this.studentdatadaoimpl = studentdatadaoimpl;
-    }
-	
-	public List<StudentModel> getStudentList() {
-		List<StudentModel> entityList = this.repository.findAll();
+	public List<StudentModel> getStudentList(String schoolCd) {
+		List<StudentModel> entityList = this.repository.findBySchoolCd(schoolCd);
 //		this.repository.
 		return entityList;
 	}
@@ -37,12 +31,23 @@ public class StudentService {
 		return student;
 	}
 	
+	public StudentModel getStudentNo(String studentNum) {
+		StudentModel student = this.repository.findByStudentNo(studentNum);
+		return student;
+	}
+	
+	public List<StudentModel> getStudent(Integer entYear,String classNum) {
+		List<StudentModel> student = this.repository.findByEntYearAndClassNum(entYear,classNum);
+		return student;
+	}
+	
 	public void update(StudentModel studentmodel) {
 		this.repository.save(studentmodel);
 	}
 
 
 	public void save(StudentModel studentmodel) {
+		studentmodel.setIsAttend(true);
 		this.repository.save(studentmodel);
 	}
 	
@@ -51,28 +56,55 @@ public class StudentService {
 		this.repository.save(studentmodel);
 	}
 
-//	public List<StudentModel> getList(String isAttend) {
-//	  List<StudentModel> list = repository.findAll(Specification
-//	    .where(StudentRepository.userNameContains(isAttend)));
-//	    // 複数項目の場合は.and(),.or()でつなげる
-//	}
+	public List<StudentModel> getList(String studentNo,String classNum,Integer entYear, Boolean isAttend,String schoolCd) {
+		List<StudentModel> list = this.repository.findAll(Specification
+	    .where(StudentRepository.studentNoContains(studentNo))
+	    .and(StudentRepository.classNumContains(classNum))
+	    .and(StudentRepository.entYearContains(entYear))
+		.and(StudentRepository.isAttendContains(isAttend))
+		.and(StudentRepository.schoolCdContains(schoolCd)));
+		System.out.print(list);
+	    // 複数項目の場合は.and(),.or()でつなげる	  
+	  return list;
+	}
 	
-	//検索
-    public List<StudentModel> search(String studentNo, 
-			Integer entYear,String classNum,Boolean isAttend){
-
-        List<StudentModel> result = new ArrayList<StudentModel>();
-
-        //すべてブランクだった場合は全件検索する
-        if ("".equals(studentNo) && "".equals(entYear) && "".equals(classNum) && "".equals(isAttend)){
-            result = this.repository.findAll();
-        }
-        else {
-            //上記以外の場合、BookDataDaoImplのメソッドを呼び出す
-            result = this.studentdatadaoimpl.search(studentNo, entYear,classNum,isAttend);
-        }
-        return result;
-    }
+	public ArrayList<Object> searchList(String studentNo,String classNum,Integer entYear){
+		ArrayList<Object> list = new ArrayList<>();
+		if (studentNo.equals("")){
+			list.add("学生番号は指定されていません");
+		}else {
+			list.add("学生番号："+ studentNo);
+		}
+		if (classNum == null) {
+			list.add("クラス番号は指定されていません");
+		}else {
+			list.add("クラス番号:"+ classNum);
+		}
+		if (entYear == null) {
+			list.add("入学年度は指定されていません");
+		}else {
+			list.add("入学年度："+ entYear);
+		}		
+		return list;
+	}
 	
+	public List<String> getStudentNolist(List<StudentModel> list) {
+		List<String> studentNos = new ArrayList<>();
+		for (StudentModel studentlist : list) {
+			String subjectcd = studentlist.getStudentNo();
+			studentNos.add(subjectcd);
+			}
+		return studentNos;
+	}
+	
+	public List<String> getStudentName(List<String> list){
+		List<String> stuname = new ArrayList<>();
+		for (String students: list) {
+			StudentModel aaa = this.repository.findByStudentNo(students);
+			stuname.add(aaa.getName());
+		}
+		return stuname;
+	}
+
 
 }

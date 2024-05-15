@@ -1,6 +1,7 @@
 package jp.ac.ohara.score.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,11 +11,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jp.ac.ohara.score.models.StudentModel;
+import jp.ac.ohara.score.models.TeacherModel;
 import jp.ac.ohara.score.service.StudentService;
 
 
@@ -24,13 +23,13 @@ public class MainController {
 	@Autowired
 	private StudentService studentservice;
 	
-	@PersistenceContext
-	EntityManager entityManager;
 
 	
+	
 	@GetMapping("/")
-	  public String index(Model model) {
-		return "base";
+	  public String index(Model model, @AuthenticationPrincipal TeacherModel teachermodel) {
+		model.addAttribute("ata",teachermodel);
+		return "Top";
 	}
 	
 	@GetMapping("/student")
@@ -41,30 +40,32 @@ public class MainController {
 	}
 	
 	@PostMapping("/student")
-	  public String create(StudentModel studentmodel,Model model,RedirectAttributes redirectattributes) {
-		  try {
-			  this.studentservice.save(studentmodel);
-			  redirectattributes.addFlashAttribute("exception","");
-		}catch(Exception e){
-			  redirectattributes.addFlashAttribute("exception",e.getMessage());
-			  }
+	  public String create(StudentModel studentmodel,@AuthenticationPrincipal TeacherModel
+			   teachermodel) {
+		studentmodel.setSchoolCd(teachermodel.getSchoolCd());
+		this.studentservice.save(studentmodel);
 		  return "/createSuccess";
 	}
 	
 	@GetMapping("/index")
-	  public String show(Model model ,StudentModel studentmodel) {
-			this.studentservice.getStudentList();
-			model.addAttribute("studentlist",studentservice.getStudentList());
+	  public String show(Model model ,StudentModel studentmodel,@AuthenticationPrincipal TeacherModel
+			   teachermodel) {
+			model.addAttribute("studentlist",studentservice.getStudentList(teachermodel.getSchoolCd()));
 			model.addAttribute("msg","検索条件を入力してください");
 			return "index";
 		}
 	
 	@PostMapping("/index")
-	public String select(@ModelAttribute("StudentModel") StudentModel studentmodel,Model model) {
+	public String select(StudentModel studentmodel,Model model,@AuthenticationPrincipal TeacherModel
+			   teachermodel) {
+		model.addAttribute("search_list",studentservice.searchList(studentmodel.getStudentNo(),studentmodel.getClassNum()
+				,studentmodel.getEntYear()));
+		model.addAttribute("stu_filter",studentservice.getList(studentmodel.getStudentNo(),studentmodel.getClassNum()
+				,studentmodel.getEntYear(),studentmodel.getIsAttend(),teachermodel.getSchoolCd()));
 		model.addAttribute("msg2","検索結果");
-		model.addAttribute("students",this.studentservice.search(studentmodel.getStudentNo(),studentmodel.getEntYear()
-				,studentmodel.getClassNum(),studentmodel.getIsAttend()));
-		
+//		System.out.print(studentservice.searchList(studentmodel.getStudentNo(),studentmodel.getClassNum()
+//				,studentmodel.getEntYear()));
+
 		return "index";
 	}
 	
@@ -84,13 +85,15 @@ public class MainController {
 	}
 	
 	@PostMapping("/studentUpdate/{id}")
-	  public String studentUpdate(@PathVariable(name="id")@ModelAttribute @Validated Long id,Model model, StudentModel studentmodel, BindingResult result) {
+	  public String studentUpdate(@PathVariable(name="id")@ModelAttribute @Validated Long id,Model model, StudentModel studentmodel, BindingResult result
+			  ,@AuthenticationPrincipal TeacherModel teachermodel) {
 		  // バリデーションエラーの場合
 	    if (result.hasErrors()) {
 	        // 編集画面に遷移
 	        return "redirect:/studentUpdate";
 	    }
-		
+	    studentmodel.setSchoolCd(teachermodel.getSchoolCd());
+	    studentmodel.setIsAttend(true);
 	    this.studentservice.update(studentmodel);
 	    
 	    return "redirect:/updateSuccess";
@@ -110,7 +113,9 @@ public class MainController {
 		}
 	
 	@PostMapping("/studentDelete/{id}")
-	  public String studentdelete(@PathVariable(name="id")Long id,Model model,StudentModel studentmodel) {
+	  public String studentdelete(@PathVariable(name="id")Long id,Model model,StudentModel studentmodel,
+			  @AuthenticationPrincipal TeacherModel teachermodel) {
+		studentmodel.setSchoolCd(teachermodel.getSchoolCd());
 		this.studentservice.delete(studentmodel);
 		return "redirect:/deleteSuccess";
 	}

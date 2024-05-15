@@ -72,8 +72,6 @@
     </style>
 <body>
 		<h1>学生管理</h1>
-		<h2 th:text="${msg}"></h2>
-        <p><h3 th:text="${msg2}"></h3></p>
         <table border="1">
 			<thead>
 				<tr th:each="object : ${search_list}"th:text="${object}"　></tr>
@@ -81,9 +79,7 @@
         </table>
         <!--入力した値をth:object="${formModel}"に詰める  -->
         <!--th:valueで初期値が入るようにする  -->
-        <form method="post" th:action="@{/index}" th:object="${studentlist}">
-            <label>学生番号:</label>
-            <input type="text" name="studentNo" placeholder="学生番号を入力してください">
+        <form method="post" th:action="@{/scoreImport}" th:object="${data}">
             <label>入学年度:</label>
             <select id="entYear" name="entYear">
             	<option value="" disabled selected>入学年度を選択してください</option>
@@ -119,53 +115,54 @@
 	                <option value="01C">01C</option>
 	                <option value="01D">01D</option>
 	            </select>
-	        <label>退学済みも表示する</label>
-	        <input type="checkbox" name="isAttend">
+	        <label>科目</label>
+	        	<select name="subject">
+					<option value="" disabled selected>科目を選択してください</option>
+					<th:block th:each="subject : ${subject}">
+						<option th:text="${subject.subjectName}"></option>
+					</th:block>
+	        	</select>
+	        <label>回数</label>
+	        	<select name="count">
+					<option value="" disabled selected>回数を選択してください</option>
+					<option value="1">一回目</option>
+					<option value="2">二回目</option>
+				</select>
             <input type="submit" value="検索">
         </form>
-	
+    <form method="post" th:action="@{/scoreImportSuccess}">
+	<h3><span th:text="${subName}"></span><span th:text="${counttext}"></span></h3>
 	<table border="1">
 		<thead>
 			<tr>
-				<th>学生番号</th>
-				<th>学生名</th>
 				<th>入学年度</th>
 				<th>クラス番号</th>
-				<th>在学中</th>
-				<th>学校コード</th>
-				<th>編集</th>
-				<th>削除</th>
+				<th>学生番号</th>
+				<th>学生名</th>
+				<th>点数</th>
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="item : ${studentlist}">
-				<th:block th:if="${item.isAttend == true}">
-					<td th:text="${item.studentNo}"></td>
-					<td th:text="${item.name}"></td>
+			<tr th:each="item : ${object}">
 					<td th:text="${item.entYear}"></td>
 					<td th:text="${item.classNum}"></td>
-					<td th:text="${item.isAttend} ? '〇' : '×'"></td>
-					<td th:text="${item.schoolCd}"></td>
-					<td><a th:href="@{'/studentUpdate/'+${item.id}}">編集</a></td>
-					<td><a th:href="@{'/studentDelete/'+${item.id}}">削除</a></td>
-				</th:block>
+					<td th:text="${item.studentNo}"></td>
+					<td th:text="${item.name}"></td>
+					<td>
+						<input type="number" name="score">
+					</td>
+					<input type="hidden" name="studentNo"th:value="${item.studentNo}">
+					<input type="hidden" name="subjectCd"th:value="${subjectcd}">
+					<input type="hidden" name="schoolCd"th:value="${schoolCd}">
+					<input type="hidden" name="count"th:value="${count}">
+					<input type="hidden" name="classNum"th:value="${item.classNum}">
 			</tr>
-			
-			 
-            <tr th:each="obj:${stu_filter}" th:object="${obj}">
-                <!--th:hrefでリンク設定  -->
-<!--                <td><a th:href="@{/book/detail/{isbn}(isbn=*{isbn})}" th:text="*{isbn}"></a></td>-->
-                <td th:text="*{studentNo}"></td>
-                <td th:text="*{name}"></td>
-                <td th:text="*{classNum}"></td>
-                <td th:text="*{entYear}"></td>
-                <td th:text="*{isAttend} ? '〇' : '×'"></td>
-				<td th:text="*{schoolCd}"></td>
-                <td><a th:href="@{'/studentUpdate/'+${obj.id}}">編集</a></td>
-				<td><a th:href="@{'/studentDelete/'+${obj.id}}">削除</a></td>
-            </tr>
 		</tbody>
 	</table>
+	
+	
+	<input type="submit" value="保存して終了">
+	</form>
 	<a href="/">戻る</a>
 </body>
 </html>
